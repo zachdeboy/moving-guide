@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Moving Guide</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .task-hover:hover { transform: translateX(4px); }
+        .phase-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { CheckCircle, Circle, ArrowRight, Truck, Package, Star } = lucide;
+
+        const MovingGuide = () => {
+            const [currentPhase, setCurrentPhase] = useState(0);
+            const [completedTasks, setCompletedTasks] = useState(new Set());
+            const [selectedStrategy, setSelectedStrategy] = useState('');
+            const [weeksRemaining, setWeeksRemaining] = useState(8);
+
+            // Save state to localStorage
+            React.useEffect(() => {
+                const state = {
+                    currentPhase,
+                    completedTasks: Array.from(completedTasks),
+                    selectedStrategy,
+                    weeksRemaining
+                };
+                localStorage.setItem('movingGuideState', JSON.stringify(state));
+            }, [currentPhase, completedTasks, selectedStrategy, weeksRemaining]);
+
+            // Load state from localStorage
+            React.useEffect(() => {
+                const saved = localStorage.getItem('movingGuideState');
+                if (saved) {
+                    try {
+                        const state = JSON.parse(saved);
+                        setCurrentPhase(state.currentPhase || 0);
+                        setCompletedTasks(new Set(state.completedTasks || []));
+                        setSelectedStrategy(state.selectedStrategy || '');
+                        setWeeksRemaining(state.weeksRemaining || 8);
+                    } catch (e) {
+                        console.log('Could not load saved state');
+                    }
+                }
+            }, []);
+
+            const phases = [
+                {
+                    title: "🎯 Foundation & Strategy (Week 8-7)",
+                    subtitle: "Set yourself up for success from the start",
+                    explanation: "Most moving stress comes from poor planning, not the actual work. Think of this phase as creating your roadmap. By establishing clear systems now, you'll avoid the panic that forces people into expensive last-minute decisions. This week is about understanding the scope of your move and creating the mental framework that will guide all your future decisions.",
+                    concepts: "Key concepts: The moving triangle (time, money, stress - you can optimize two), the decluttering dividend (every item you don't move saves money and effort), and the momentum principle (early wins create psychological energy for harder decisions later).",
+                    tasks: [
+                        "Research moving companies and get 3 quotes (even if you're DIY moving - this teaches you real costs)",
+                        "Create a simple moving binder or digital folder for all documents and receipts",
+                        "Walk through your home with fresh eyes and estimate: What percentage needs to go to new house vs. donate/sell?",
+                        "Buy basic packing supplies: boxes, tape, bubble wrap, markers, labels (buying early saves money)",
+                        "Take photos of valuable items for insurance and memory keeping"
+                    ]
+                },
+                {
+                    title: "📦 The Great Sort (Week 6-5)",
+                    subtitle: "Transform chaos into three clear categories",
+                    explanation: "This is where the real work begins, but it's also where you'll see the biggest emotional payoff. You're not just packing - you're actively choosing what deserves space in your new life. The three-pile system works because it forces a decision on every single item, preventing the 'I'll decide later' trap that creates last-minute chaos. Starting with non-essentials builds your decision-making muscles before you tackle emotionally harder items.",
+                    concepts: "The psychology of possession: We often keep things from guilt, fear, or outdated identity. Moving gives you permission to let go. The 'someday' items are usually the easiest first cuts - if you haven't used it in a year, your new house probably doesn't need it either.",
+                    tasks: [
+                        "Start with storage areas: attic, basement, garage, closets (these have the lowest emotional attachment)",
+                        "Use the three-pile system: MOVING, DONATING/SELLING, TRASH",
+                        "Focus on categories: all books together, all kitchen gadgets, all decorative items",
+                        "Take photos before you pack sentimental items (this preserves memories while reducing bulk)",
+                        "List valuable items for sale online (this takes time, so start early)",
+                        "Schedule donation pickups for large items"
+                    ]
+                },
+                {
+                    title: "📋 Strategic Packing Begins (Week 4-3)",
+                    subtitle: "Pack smartly, not just efficiently",
+                    explanation: "Now you're transitioning from decision-making to execution, but this isn't just stuffing things in boxes. Strategic packing means thinking about your unpacking experience. You're essentially sending care packages to your future self on moving day. Good labeling and room-by-room systems mean the difference between settling into your new home quickly versus living in chaos for weeks.",
+                    concepts: "The unpacking principle: Pack like you're helping a stranger understand your belongings. The room-assignment strategy: Items should be packed according to where they'll live in the NEW house, not where they came from. The essential box theory: Each room should have one clearly marked box that gets opened first.",
+                    tasks: [
+                        "Pack one room completely to test your system and timing (this teaches you realistic expectations)",
+                        "Create a numbering system: Box 1 of 15 - Kitchen - Everyday dishes and utensils",
+                        "Pack books, decorative items, and seasonal clothes (heavy items in small boxes)",
+                        "Create 'first week' boxes for each major room with immediate necessities",
+                        "Photograph the contents of boxes with valuable or hard-to-remember items",
+                        "Use up perishable food and cleaning supplies rather than moving them"
+                    ]
+                },
+                {
+                    title: "🏠 Room-by-Room Completion (Week 2)",
+                    subtitle: "Systematic completion of living spaces",
+                    explanation: "You're now in the execution phase where your early planning pays off. By this point, you should feel confident in your systems because you've been practicing for weeks. The goal is to complete entire rooms so you can start mentally transitioning to your new space. Each completed room is a small victory that builds momentum for the final push.",
+                    concepts: "The completion satisfaction: Finishing entire rooms provides psychological closure and reduces the feeling of living in chaos. The priority hierarchy: Pack in reverse order of need - you'll need your bedroom functional until the last night, but the dining room can be packed early.",
+                    tasks: [
+                        "Complete packing: guest rooms, dining room, home office (rooms you can live without)",
+                        "Pack all but one week's worth of clothes",
+                        "Disassemble furniture that requires tools (keep hardware in labeled bags taped to furniture)",
+                        "Confirm final details with movers or truck rental",
+                        "Notify utilities, postal service, banks, and subscriptions of your move date",
+                        "Pack a 'first day' survival kit: toilet paper, phone chargers, basic tools, snacks"
+                    ]
+                },
+                {
+                    title: "⚡ Final Week Essentials",
+                    subtitle: "The crucial last-minute details",
+                    explanation: "This final phase is about maintaining your sanity while handling the details that can only be done at the last minute. If you've followed the earlier phases, this week should feel manageable rather than frantic. You're not scrambling to pack everything - you're thoughtfully handling the items you need right up until moving day.",
+                    concepts: "The essential-only mindset: You should be living with just the basics this week, like you're camping in your own home. The transition ritual: Taking time to say goodbye to your space helps with the emotional aspect of moving.",
+                    tasks: [
+                        "Pack everything except: one outfit per person, basic toiletries, phone chargers, important documents",
+                        "Clean out refrigerator and use up remaining food",
+                        "Do final load of laundry and pack all but next-day clothes",
+                        "Pack a 'moving day' bag with snacks, water, phone chargers, and basic tools",
+                        "Do a final walkthrough and take photos for memory and security deposit purposes",
+                        "Keep important documents (lease, contracts, ID) with you, not in the moving truck"
+                    ]
+                },
+                {
+                    title: "🚚 Moving Day & First Week",
+                    subtitle: "Execute your plan and settle in",
+                    explanation: "Moving day itself should feel like the natural conclusion of weeks of preparation, not a frantic scramble. Your job today is project management - supervising the plan you've spent weeks creating. The first week in your new home is about implementing the unpacking strategy you built into your packing system.",
+                    concepts: "The supervisor mindset: You're not doing all the heavy lifting yourself - you're ensuring your plan gets executed correctly. The 80/20 rule of unpacking: Getting 80% functional quickly is better than perfectionism that leaves you living in boxes for months.",
+                    tasks: [
+                        "Be present for the entire moving process to answer questions and make decisions",
+                        "Unpack 'first day' essentials: one bathroom, basic kitchen function, one bedroom",
+                        "Set up bed first - you need good sleep to handle the rest",
+                        "Locate and test: electricity, water, internet, heat/AC",
+                        "Unpack kitchen basics so you can prepare simple meals",
+                        "Find local essentials: grocery store, pharmacy, hospital"
+                    ]
+                }
+            ];
+
+            const strategies = [
+                "Professional movers (less physical work, higher cost)",
+                "Hybrid approach (rent truck, hire loading help)",
+                "DIY with friends (lowest cost, highest physical effort)",
+                "Pod/container service (flexible timing, moderate cost)"
+            ];
+
+            const toggleTask = (phaseIndex, taskIndex) => {
+                const taskId = `${phaseIndex}-${taskIndex}`;
+                const newCompleted = new Set(completedTasks);
+                if (newCompleted.has(taskId)) {
+                    newCompleted.delete(taskId);
+                } else {
+                    newCompleted.add(taskId);
+                }
+                setCompletedTasks(newCompleted);
+            };
+
+            const getPhaseProgress = (phaseIndex) => {
+                const totalTasks = phases[phaseIndex].tasks.length;
+                const completedInPhase = phases[phaseIndex].tasks.filter((_, taskIndex) => 
+                    completedTasks.has(`${phaseIndex}-${taskIndex}`)
+                ).length;
+                return Math.round((completedInPhase / totalTasks) * 100);
+            };
+
+            const isPhaseComplete = (phaseIndex) => {
+                return getPhaseProgress(phaseIndex) === 100;
+            };
+
+            const canAccessPhase = (phaseIndex) => {
+                if (phaseIndex === 0) return true;
+                return isPhaseComplete(phaseIndex - 1);
+            };
+
+            const getTimelineColor = () => {
+                if (weeksRemaining >= 6) return 'text-green-600';
+                if (weeksRemaining >= 3) return 'text-yellow-600';
+                if (weeksRemaining >= 1) return 'text-orange-600';
+                return 'text-red-600';
+            };
+
+            const getTimelineMessage = () => {
+                if (weeksRemaining >= 6) return "Perfect timing - you're ahead of schedule!";
+                if (weeksRemaining >= 3) return "Good timing - stay focused on your current phase";
+                if (weeksRemaining >= 1) return "Crunch time - prioritize essentials";
+                return "Final stretch - execute your plan!";
+            };
+
+            return React.createElement('div', {
+                className: 'max-w-5xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen'
+            }, React.createElement('div', {
+                className: 'bg-white rounded-lg shadow-lg p-8'
+            }, 
+                // Header
+                React.createElement('div', { className: 'text-center mb-8' },
+                    React.createElement('div', { className: 'flex justify-center items-center mb-4' },
+                        React.createElement(Truck, { className: 'text-blue-600 mr-3', size: 48 }),
+                        React.createElement(Package, { className: 'text-indigo-600', size: 40 })
+                    ),
+                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-800 mb-2' }, '2-Month Strategic Moving Guide'),
+                    React.createElement('p', { className: 'text-gray-600 mb-4' }, 'Transform overwhelming relocation into a manageable, strategic process'),
+                    
+                    // Timeline Tracker
+                    React.createElement('div', { className: 'bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6' },
+                        React.createElement('div', { className: 'flex items-center justify-between mb-2' },
+                            React.createElement('span', { className: 'text-sm font-medium text-gray-700' }, 'Weeks until move:'),
+                            React.createElement('div', { className: 'flex gap-2' },
+                                [8,7,6,5,4,3,2,1].map(week => 
+                                    React.createElement('button', {
+                                        key: week,
+                                        onClick: () => setWeeksRemaining(week),
+                                        className: `px-3 py-1 rounded transition-all text-sm ${
+                                            weeksRemaining === week 
+                                                ? 'bg-blue-500 text-white' 
+                                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                                        }`
+                                    }, week)
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'text-center' },
+                            React.createElement('span', { 
+                                className: `text-2xl font-bold transition-all ${getTimelineColor()}` 
+                            }, `${weeksRemaining} weeks remaining`),
+                            React.createElement('p', { className: 'text-sm text-gray-600 mt-1' }, getTimelineMessage())
+                        )
+                    )
+                ),
+
+                // Progress Overview
+                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8' },
+                    phases.map((phase, index) =>
+                        React.createElement('div', {
+                            key: index,
+                            className: `p-4 rounded-lg border-2 transition-all duration-300 phase-hover cursor-pointer ${
+                                currentPhase === index 
+                                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                                    : canAccessPhase(index)
+                                        ? 'border-gray-200 bg-white hover:border-gray-300'
+                                        : 'border-gray-100 bg-gray-50 opacity-50'
+                            }`,
+                            onClick: () => canAccessPhase(index) && setCurrentPhase(index)
+                        },
+                            React.createElement('div', { className: 'flex items-center justify-between mb-2' },
+                                React.createElement('span', { className: 'text-sm font-medium' }, `Phase ${index + 1}`),
+                                isPhaseComplete(index) && React.createElement(CheckCircle, { className: 'text-green-500', size: 20 })
+                            ),
+                            React.createElement('div', { className: 'text-xs text-gray-600 mb-2' }, phase.title.split(' ').slice(1).join(' ')),
+                            React.createElement('div', { className: 'w-full bg-gray-200 rounded-full h-2' },
+                                React.createElement('div', {
+                                    className: 'bg-blue-500 h-2 rounded-full transition-all duration-500 ease-out',
+                                    style: { width: `${getPhaseProgress(index)}%` }
+                                })
+                            )
+                        )
+                    )
+                ),
+
+                // Current Phase
+                React.createElement('div', { className: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg p-6 mb-6' },
+                    React.createElement('h2', { className: 'text-2xl font-bold mb-2' }, phases[currentPhase].title),
+                    React.createElement('p', { className: 'text-blue-100 mb-4' }, phases[currentPhase].subtitle),
+                    React.createElement('div', { className: 'bg-white/10 rounded-lg p-4 mb-4' },
+                        React.createElement('p', { className: 'text-sm leading-relaxed' }, phases[currentPhase].explanation)
+                    ),
+                    phases[currentPhase].concepts && React.createElement('div', { className: 'bg-white/10 rounded-lg p-4' },
+                        React.createElement('h4', { className: 'font-semibold mb-2 text-blue-100' }, 'Understanding the Why:'),
+                        React.createElement('p', { className: 'text-sm leading-relaxed text-blue-50' }, phases[currentPhase].concepts)
+                    )
+                ),
+
+                // Strategy Selection for Phase 0
+                currentPhase === 0 && React.createElement('div', { className: 'bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6 transition-all duration-300' },
+                    React.createElement('h3', { className: 'font-semibold mb-4 text-gray-800' }, "What's your moving strategy?"),
+                    React.createElement('p', { className: 'text-sm text-gray-600 mb-4' }, "Understanding your approach helps prioritize tasks and budget planning. Each strategy has different preparation requirements."),
+                    React.createElement('div', { className: 'space-y-3' },
+                        strategies.map(strategy =>
+                            React.createElement('button', {
+                                key: strategy,
+                                onClick: () => setSelectedStrategy(strategy),
+                                className: `w-full p-3 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md ${
+                                    selectedStrategy === strategy 
+                                        ? 'border-yellow-500 bg-yellow-100 text-yellow-800 transform scale-[1.02]'
+                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                                }`
+                            }, strategy)
+                        )
+                    ),
+                    selectedStrategy && React.createElement('div', { className: 'mt-4 p-4 bg-green-50 border border-green-200 rounded-lg transition-all duration-300' },
+                        React.createElement('p', { className: 'text-green-800 font-medium' }, `Strategy selected: ${selectedStrategy}`),
+                        React.createElement('p', { className: 'text-green-700 text-sm mt-1' }, 'Your tasks and timeline will be optimized for this approach.')
+                    )
+                ),
+
+                // Task List
+                React.createElement('div', { className: 'space-y-4' },
+                    React.createElement('h3', { className: 'text-xl font-semibold text-gray-800 mb-4' }, 'Your Action Steps:'),
+                    phases[currentPhase].tasks.map((task, taskIndex) => {
+                        const taskId = `${currentPhase}-${taskIndex}`;
+                        const isCompleted = completedTasks.has(taskId);
+                        
+                        return React.createElement('div', {
+                            key: taskIndex,
+                            className: `p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer hover:shadow-md task-hover ${
+                                isCompleted 
+                                    ? 'border-green-200 bg-green-50 hover:bg-green-100' 
+                                    : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                            }`,
+                            onClick: () => toggleTask(currentPhase, taskIndex)
+                        },
+                            React.createElement('div', { className: 'flex items-center' },
+                                React.createElement(isCompleted ? CheckCircle : Circle, {
+                                    className: `${isCompleted ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'} mr-3 flex-shrink-0 transition-all duration-200`,
+                                    size: 24
+                                }),
+                                React.createElement('span', {
+                                    className: `transition-all duration-200 ${isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}`
+                                }, task)
+                            )
+                        );
+                    })
+                ),
+
+                // Navigation
+                React.createElement('div', { className: 'flex justify-between mt-8 pt-6 border-t border-gray-200' },
+                    React.createElement('button', {
+                        onClick: () => setCurrentPhase(Math.max(0, currentPhase - 1)),
+                        disabled: currentPhase === 0,
+                        className: 'px-6 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-all duration-200'
+                    }, 'Previous Phase'),
+                    
+                    React.createElement('div', { className: 'text-center' },
+                        React.createElement('div', { className: 'text-sm text-gray-600' }, `Phase ${currentPhase + 1} of ${phases.length}`),
+                        React.createElement('div', { className: 'text-lg font-semibold text-gray-800' }, `${getPhaseProgress(currentPhase)}% Complete`)
+                    ),
+
+                    React.createElement('button', {
+                        onClick: () => setCurrentPhase(Math.min(phases.length - 1, currentPhase + 1)),
+                        disabled: currentPhase === phases.length - 1 || !canAccessPhase(currentPhase + 1),
+                        className: 'px-6 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 flex items-center transition-all duration-200 hover:shadow-lg'
+                    }, 'Next Phase ', React.createElement(ArrowRight, { className: 'ml-2', size: 16 }))
+                ),
+
+                // Key Insight
+                React.createElement('div', { className: 'mt-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200' },
+                    React.createElement('div', { className: 'flex items-center mb-3' },
+                        React.createElement(Star, { className: 'text-yellow-500 mr-2', size: 24 }),
+                        React.createElement('span', { className: 'font-semibold text-gray-800' }, 'Moving Success Principle:')
+                    ),
+                    React.createElement('p', { className: 'text-gray-700 leading-relaxed' },
+                        "The most successful moves happen when you treat moving as a strategic project rather than a frantic event. Every decision you make weeks in advance saves you time, money, and stress during the crucial final days. You're not just changing addresses - you're thoughtfully curating what deserves space in your next chapter of life."
+                    )
+                )
+            ));
+        };
+
+        ReactDOM.render(React.createElement(MovingGuide), document.getElementById('root'));
+    </script>
+</body>
+</html>
